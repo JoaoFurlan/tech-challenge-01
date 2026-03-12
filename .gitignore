@@ -177,8 +177,13 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/python
 
 #custom
+
 # MLflow
 mlruns/
+mlflow.db
+
+# modelos treinados
+models/*.joblib
 
 # MacOS
 .DS_Store
