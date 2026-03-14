@@ -183,7 +183,11 @@ mlruns/
 mlflow.db
 
 # modelos treinados
-models/*.joblib
+models/*
+!models/*.pt
+!models/*.joblib
+!models/*.csv
+!models/*.png
 
 # MacOS
 .DS_Store
