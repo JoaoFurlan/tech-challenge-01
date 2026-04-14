@@ -176,7 +176,8 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 
-#custom
+# [ajuste básico] ignorar configurações locais do VS Code
+.vscode/
 
 # MLflow
 mlruns/

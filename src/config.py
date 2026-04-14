@@ -15,4 +15,4 @@ MLFLOW_TRACKING_URI = f"sqlite:///{BASE_DIR}/mlflow.db"
 
 # Hiperparâmetros Globais
 RANDOM_STATE = 42
-TEST_SIZE = 0.2
+
