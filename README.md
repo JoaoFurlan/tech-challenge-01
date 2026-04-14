@@ -8,6 +8,29 @@ O modelo principal **foi uma rede neural MLP implementada em PyTorch**, comparad
 
 ---
 
+## Instalação e ambiente (via `pyproject.toml`)
+
+Este projeto agora utiliza o `pyproject.toml` como fonte principal de configuração de dependências.
+
+### Requisitos
+
+- Python 3.11+
+
+### Instalação (dependências principais)
+
+```bash
+python -m pip install -e .
+```
+
+### Instalação com dependências de desenvolvimento
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
+---
+
+
 ## Estrutura do projeto
 
 ```text
