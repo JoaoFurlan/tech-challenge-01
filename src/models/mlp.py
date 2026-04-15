@@ -16,7 +16,6 @@ class ChurnMLP(nn.Module):
 
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout(0.2)
-        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         x = self.relu(self.layer1(x))
@@ -24,5 +23,5 @@ class ChurnMLP(nn.Module):
         x = self.relu(self.layer2(x))
         x = self.dropout(x)
         x = self.relu(self.layer3(x))
-        x = self.sigmoid(self.output(x))
+        x = self.output(x)
         return x

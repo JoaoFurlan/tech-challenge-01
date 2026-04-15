@@ -1,7 +1,7 @@
 import pandas as pd
 import joblib
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from src.utils.logger import get_logger
 from src.config import RANDOM_STATE, MODEL_DIR, RAW_DATA_PATH
@@ -60,38 +60,40 @@ def split_data(df: pd.DataFrame, target_column: str = 'Churn', test_size: float 
 
 
 
-def apply_one_hot_encoding(X_train: pd.DataFrame, X_test: pd.DataFrame):
-    """ Aplica o OneHotEncoder e salva o modelo para uso na API"""
-    logger.info("Aplicando OneHotEncoder nas variáveis categóricas...")
+def encode_and_scale_data(X_train: pd.DataFrame, X_test: pd.DataFrame):
+    """ Aplica o OneHotEncoder (categóricas) e StandardScaler (numéricas)"""
+    logger.info("Aplicando encoding e scaling...")
 
     # Separa colunas categórias e numéricas
     categorical_cols = X_train.select_dtypes(include=['object']).columns.tolist()
     numerical_cols = X_train.select_dtypes(exclude=['object']).columns.tolist()
 
-    # Inicializa o Encoder
+    # 1. Processar Categóricas
     encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
+    X_train_cat = encoder.fit_transform(X_train[categorical_cols])
+    X_test_cat = encoder.transform(X_test[categorical_cols])
+    cat_cols_names = encoder.get_feature_names_out(categorical_cols)
 
-    # FIT apenas no treino
-    # TRANSFORM no treino e teste
-    X_train_encoded = encoder.fit_transform(X_train[categorical_cols])
-    X_test_encoded = encoder.transform(X_test[categorical_cols])
+    # 2. Processar Numéricas
+    scaler = StandardScaler()
+    X_train_num = scaler.fit_transform(X_train[numerical_cols])
+    X_test_num = scaler.transform(X_test[numerical_cols])
 
-    # Nomes das novas colunas
-    encoded_cols = encoder.get_feature_names_out(categorical_cols)
+    # 3. Juntar tudo em DataFrames
+    X_train_cat_df = pd.DataFrame(X_train_cat, columns=cat_cols_names, index=X_train.index)
+    X_test_cat_df = pd.DataFrame(X_test_cat, columns=cat_cols_names, index=X_test.index)
+    
+    X_train_num_df = pd.DataFrame(X_train_num, columns=numerical_cols, index=X_train.index)
+    X_test_num_df = pd.DataFrame(X_test_num, columns=numerical_cols, index=X_test.index)
 
-    # Constrói os DataFrames finais juntando numéricas e codificadas
-    X_train_df = pd.DataFrame(X_train_encoded, columns=encoded_cols, index=X_train.index)
-    X_test_df = pd.DataFrame(X_test_encoded, columns=encoded_cols, index=X_test.index)
+    X_train_final = pd.concat([X_train_num_df, X_train_cat_df], axis=1)
+    X_test_final = pd.concat([X_test_num_df, X_test_cat_df], axis=1)
 
-    X_train_final = pd.concat([X_train[numerical_cols], X_train_df], axis=1)
-    X_test_final = pd.concat([X_test[numerical_cols], X_test_df], axis=1)
-
-    # Salva o Encoder fisicamente para API poder transformar novos clientes
+    # 4. Salvar os artefatos para a API
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
-    encoder_path = MODEL_DIR / 'one_hot_encoder.joblib'
-    joblib.dump(encoder, encoder_path)
-    logger.info(f"OneHotEncoder aplicado e salvo em: {encoder_path}")
-
+    joblib.dump(encoder, MODEL_DIR / 'one_hot_encoder.joblib')
+    joblib.dump(scaler, MODEL_DIR / 'scaler.joblib') # Salva o scaler também!
+    
     return X_train_final, X_test_final
 
 
@@ -100,17 +102,12 @@ def prepare_data_pipeline(df: pd.DataFrame):
     """Pipeline completo: Limpa, divide e codifica os dados."""
     df_cleaned = clean_data(df)
 
-    X = df_cleaned.drop(columns=['Churn'])
-    y = df_cleaned['Churn']
-
     # Divide os dados antes do encoding para evitar data leakage
     logger.info("Dividindo dados em treino e teste...")
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=RANDOM_STATE, stratify=y
-    )
+    X_train, X_test, y_train, y_test = split_data(df_cleaned)
 
     # Aplica o encoding
-    X_train_ready, X_test_ready = apply_one_hot_encoding(X_train, X_test)
+    X_train_ready, X_test_ready = encode_and_scale_data(X_train, X_test)
 
-    logger.info("Pipeline concluído. Formato do Treino: {X_train_ready.shape}")
+    logger.info(f"Pipeline concluído. Formato do Treino: {X_train_ready.shape}")
     return X_train_ready, X_test_ready, y_train, y_test
