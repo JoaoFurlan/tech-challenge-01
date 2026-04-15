@@ -10,8 +10,10 @@ RAW_DATA_PATH = DATA_DIR/"raw"/"telco_customer_churn.csv"
 PROCESSED_DATA_PATH = DATA_DIR/"processed"/"telco_clean.csv"
 
 # Pastas de Modelos e Artefatos
-MODEL_DIR = BASE_DIR/"src/models"
-MLFLOW_TRACKING_URI = f"sqlite:///{BASE_DIR}/mlflow.db"
+MODEL_DIR = BASE_DIR/"models"
+MODEL_PATH = MODEL_DIR / "mlp_churn_best.pt"
+MLFLOW_TRACKING_URI = f"sqlite:///{BASE_DIR.as_posix()}/mlflow.db"
+TARGET = "Churn"
 
 # Hiperparâmetros Globais
 RANDOM_STATE = 42
