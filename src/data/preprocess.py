@@ -14,7 +14,6 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
     # 1. Converter TotalCharges (que vem como string/object) para float
-    # O 'errors=coerce' transforma espaços vazios em NaN
     df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')
 
     # 2. Tratar valores nulos
@@ -23,7 +22,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
         logger.info(f"Preenchendo {null_count} valores nulos em TotalCharges com 0")
         df['TotalCharges'] = df['TotalCharges'].fillna(0)
 
-    # 3. Remover customerID
+    # 3. Remover coluna customerID
     if 'customerID' in df.columns:
         df = df.drop(columns=['customerID'])
 

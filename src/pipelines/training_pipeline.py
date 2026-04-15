@@ -3,7 +3,7 @@ import mlflow
 import torch
 from sklearn.model_selection import train_test_split
 
-from src.config import RAW_DATA_PATH, MODEL_PATH, MLFLOW_TRACKING_URI
+from src.config import RAW_DATA_PATH, MODEL_PATH, MLFLOW_TRACKING_URI, RANDOM_STATE
 from src.data.load_data import load_data
 from src.data.preprocess import clean_data
 from src.features.build_features import fit_transform_features, transform_features
@@ -19,9 +19,12 @@ def run_training_pipeline():
     Pipeline completo:
     1. Carrega dados
     2. Limpa dados
-    3. Split treino/validação
-    4. Feature engineering
-    5. Treina modelo
+    3. Separar Target
+    4. Split treino/validação
+    5. Feature engineering
+    6. Treina modelo
+    7. Avaliação do modelo
+    8. Log no MLflow
     """
     # Configurar MLflow
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
@@ -35,7 +38,12 @@ def run_training_pipeline():
         # 3. Separar target e 4. Split
         X = df.drop(columns=["Churn"])
         y = df["Churn"]
-        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+        X_train, X_val, y_train, y_val = train_test_split(
+                                            X,
+                                            y, 
+                                            test_size=0.2, 
+                                            random_state=RANDOM_STATE, 
+                                            stratify=y)
 
         # 5. Features
         X_train = fit_transform_features(X_train)
