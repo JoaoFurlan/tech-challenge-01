@@ -49,25 +49,25 @@ def predict_new_customer(customer_dict):
 
 # --- TESTE COM UM CLIENTE NOVO ---
 new_client = {
-    'gender': 'Female',
-    'SeniorCitizen': 1,
+    'gender': 'Male',
+    'SeniorCitizen': 0,
     'Partner': 'Yes',
     'Dependents': 'Yes',
-    'tenure': 1,
-    'PhoneService': 'No',
+    'tenure': 15,
+    'PhoneService': 'Yes',
     'MultipleLines': 'No phone service',
     'InternetService': 'DSL',
     'OnlineSecurity': 'No',
     'OnlineBackup': 'Yes',
     'DeviceProtection': 'No',
-    'TechSupport': 'No',
+    'TechSupport': 'Yes',
     'StreamingTV': 'No',
     'StreamingMovies': 'No',
     'Contract': 'Month-to-month',
     'PaperlessBilling': 'Yes',
     'PaymentMethod': 'Electronic check',
-    'MonthlyCharges': 29.85,
-    'TotalCharges': '29.85'
+    'MonthlyCharges': 700,
+    'TotalCharges': '1700'
 }
 
 prob = predict_new_customer(new_client)
