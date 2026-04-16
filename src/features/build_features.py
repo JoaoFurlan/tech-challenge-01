@@ -2,7 +2,7 @@ import pandas as pd
 import joblib
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from src.config import MODEL_DIR
-from src.utils.logger import get_logger
+from middleware.logger import get_logger
 
 logger = get_logger(__name__)
 

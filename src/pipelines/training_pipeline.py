@@ -9,7 +9,7 @@ from src.data.preprocess import clean_data
 from src.features.build_features import fit_transform_features, transform_features
 from src.models.train import train_model
 from src.models.evaluate import evaluate
-from src.utils.logger import get_logger
+from middleware.logger import get_logger
 
 logger = get_logger(__name__)
 

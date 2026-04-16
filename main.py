@@ -1,7 +1,7 @@
 import argparse
 
 from src.pipelines.training_pipeline import run_training_pipeline
-from src.utils.logger import get_logger
+from middleware.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -32,3 +32,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+    
