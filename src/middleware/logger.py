@@ -1,6 +1,12 @@
 import logging
 import sys
 
+# Definição de cores ANSI
+RESET = "\033[0m"
+BOLD = "\033[1m"
+GREEN = "\033[32m"
+CYAN = "\033[36m"
+
 def get_logger(name: str):
     logger = logging.getLogger(name)
 
