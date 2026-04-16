@@ -15,7 +15,7 @@ def train_model(X_train, y_train, X_val, y_val, model_path):
     X_val_t = torch.tensor(X_val.values, dtype=torch.float32)
     y_val_t = torch.tensor(y_val.values, dtype=torch.float32).view(-1, 1)
 
-    train_loader = DataLoader(TensorDataset(X_train_t, y_train_t), batch_size=64, shuffle=True)
+    train_loader = DataLoader(TensorDataset(X_train_t, y_train_t), batch_size=32, shuffle=True)
 
     # 1. Definir o peso baseado no desbalanceamento (aprox 3 para 1)
     pos_weight = torch.tensor([1.0])
@@ -27,7 +27,9 @@ def train_model(X_train, y_train, X_val, y_val, model_path):
 
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    early_stopping = EarlyStopping(patience=7, path=model_path)
+    early_stopping = EarlyStopping(patience=10, path=model_path)
+
+    running_train_loss = 0.0
 
     for epoch in range(100):
         model.train()
@@ -36,6 +38,7 @@ def train_model(X_train, y_train, X_val, y_val, model_path):
             loss = criterion(model(batch_X), batch_y)
             loss.backward()
             optimizer.step()
+            running_train_loss += loss.item()
 
         model.eval()
         with torch.no_grad():

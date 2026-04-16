@@ -1,7 +1,7 @@
 import argparse
 
 from src.pipelines.training_pipeline import run_training_pipeline
-from middleware.logger import get_logger
+from src.middleware.logger import get_logger
 
 logger = get_logger(__name__)
 

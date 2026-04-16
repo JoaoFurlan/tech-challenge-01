@@ -11,7 +11,7 @@ from src.data.preprocess import clean_data
 from src.features.build_features import fit_transform_features, transform_features
 from src.models.train import train_model
 from src.models.evaluate import evaluate
-from middleware.logger import get_logger
+from src.middleware.logger import get_logger
 from src.config import C_BOLD, C_CYAN, C_GREEN, C_RESET
 
 logger = get_logger(__name__)
