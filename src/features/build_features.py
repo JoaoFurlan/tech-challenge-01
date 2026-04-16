@@ -25,6 +25,9 @@ def fit_transform_features(X: pd.DataFrame):
 
     X_final = _combine_features(X, X_cat, X_num, encoder, categorical_cols, numerical_cols)
 
+    feature_names = X_final.columns.tolist()
+    joblib.dump(feature_names, MODEL_DIR / "feature_names.joblib")
+
     return X_final
 
 

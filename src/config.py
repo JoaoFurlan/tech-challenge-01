@@ -18,3 +18,8 @@ TARGET = "Churn"
 # Hiperparâmetros Globais
 RANDOM_STATE = 42
 
+# Cores para o terminal
+C_GREEN = "\033[32m"
+C_CYAN = "\033[36m"
+C_RESET = "\033[0m"
+C_BOLD = "\033[1m"

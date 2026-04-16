@@ -17,8 +17,14 @@ def train_model(X_train, y_train, X_val, y_val, model_path):
 
     train_loader = DataLoader(TensorDataset(X_train_t, y_train_t), batch_size=64, shuffle=True)
 
+    # 1. Definir o peso baseado no desbalanceamento (aprox 3 para 1)
+    pos_weight = torch.tensor([3.0])
+
     model = ChurnMLP(input_dim=X_train.shape[1])
-    criterion = nn.BCEWithLogitsLoss()
+
+    # 2. Passar o peso para a função de perda
+    criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     early_stopping = EarlyStopping(patience=7, path=model_path)

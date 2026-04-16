@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+import random
 import mlflow
 import torch
 from sklearn.model_selection import train_test_split
@@ -10,6 +12,7 @@ from src.features.build_features import fit_transform_features, transform_featur
 from src.models.train import train_model
 from src.models.evaluate import evaluate
 from middleware.logger import get_logger
+from src.config import C_BOLD, C_CYAN, C_GREEN, C_RESET
 
 logger = get_logger(__name__)
 
@@ -29,6 +32,11 @@ def run_training_pipeline():
     # Configurar MLflow
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     mlflow.set_experiment("Churn_Prediction_MLP")
+
+    # Trava aleatoriedade
+    random.seed(RANDOM_STATE)
+    np.random.seed(RANDOM_STATE)
+    torch.manual_seed(RANDOM_STATE)
 
     with mlflow.start_run():
         # 1. Load e 2. Clean
@@ -67,13 +75,21 @@ def run_training_pipeline():
         
         metrics = evaluate(y_val, y_prob)
         
-        logger.info(f"Métricas Finais - Recall: {metrics['recall']:.4f} | F1: {metrics['f1']:.4f}")
+        # logger.info(f"Métricas Finais - Recall: {metrics['recall']:.4f} | F1: {metrics['f1']:.4f}")
 
         # 8. Log no MLflow
         mlflow.log_metrics(metrics)
         mlflow.log_param("model_type", "MLP")
         mlflow.pytorch.log_model(model, "model")
 
-        logger.info(f"Pipeline finalizado. Métricas: {metrics}")
+        # Log formatado
+        logger.info(f"{C_BOLD}{C_CYAN}Pipeline finalizado com sucesso!{C_RESET}")
+        logger.info(f"{C_CYAN}--- Métricas de Avaliação ---{C_RESET}")
+        logger.info(f"Acurácia:  {C_GREEN}{metrics['accuracy']:.4f}{C_RESET}")
+        logger.info(f"Precisão:  {C_GREEN}{metrics['precision']:.4f}{C_RESET}")
+        logger.info(f"Recall:    {C_GREEN}{metrics['recall']:.4f}{C_RESET}")
+        logger.info(f"F1-Score:  {C_GREEN}{metrics['f1']:.4f}{C_RESET}")
+        logger.info(f"ROC-AUC:   {C_GREEN}{metrics['roc_auc']:.4f}{C_RESET}")
+        logger.info(f"{C_CYAN}-----------------------------{C_RESET}")
 
     
