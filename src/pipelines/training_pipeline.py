@@ -23,7 +23,7 @@ def run_training_pipeline():
     1. Carrega dados
     2. Limpa dados
     3. Separar Target
-    4. Split treino/validação
+    4. Split treino/validação/teste
     5. Feature engineering
     6. Treina modelo
     7. Avaliação do modelo
@@ -43,21 +43,34 @@ def run_training_pipeline():
         df = load_data(RAW_DATA_PATH)
         df = clean_data(df)
 
-        # 3. Separar target e 4. Split
+        # 3. Separar target
         X = df.drop(columns=["Churn"])
         y = df["Churn"]
-        X_train, X_val, y_train, y_val = train_test_split(
+
+        # 4. Split treino, validação e teste
+        # Primeiro split: separa o conjunto de teste (20%) e o conjunto completo para treino/validação (80%)
+        X_train_full, X_test, y_train_full, y_test = train_test_split(
                                             X,
                                             y, 
                                             test_size=0.2, 
                                             random_state=RANDOM_STATE, 
                                             stratify=y)
+        
+        # Segundo split: subdivide o conjunto completo em treino e validação
+        X_train, X_val, y_train, y_val = train_test_split(
+                                            X_train_full,
+                                            y_train_full, 
+                                            test_size=0.2, 
+                                            random_state=RANDOM_STATE, 
+                                            stratify=y_train_full)
+
 
         # 5. Features
         X_train = fit_transform_features(X_train)
         X_val = transform_features(X_val)
+        X_test = transform_features(X_test)
 
-        # 6. Treino
+        # 6. Treino (utiliza o conjunto de validação para o early stopping)
         model = train_model(
             X_train=X_train,
             y_train=y_train,
@@ -66,12 +79,12 @@ def run_training_pipeline():
             model_path=MODEL_PATH
         )
 
-        # 7. Avaliação
+        # 7. Avaliação (agora utilizando o conjunto de teste isolado)
         model.eval()
         with torch.no_grad():
-            X_val_t = torch.tensor(X_val.values, dtype=torch.float32)
+            X_test_t = torch.tensor(X_test.values, dtype=torch.float32)
             # Obter probabilidades (usando sigmoid pois a saída do modelo é linear)
-            y_prob = torch.sigmoid(model(X_val_t)).numpy().flatten()
+            y_prob = torch.sigmoid(model(X_test_t)).numpy().flatten()
         
         metrics = evaluate(y_val, y_prob)
         

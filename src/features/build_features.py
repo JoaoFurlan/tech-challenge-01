@@ -36,6 +36,7 @@ def transform_features(X: pd.DataFrame):
 
     encoder = joblib.load(MODEL_DIR / "encoder.joblib")
     scaler = joblib.load(MODEL_DIR / "scaler.joblib")
+    expected_columns = joblib.load(MODEL_DIR / "feature_names.joblib")
 
     categorical_cols = X.select_dtypes(include=['object']).columns.tolist()
     numerical_cols = X.select_dtypes(exclude=['object']).columns.tolist()
@@ -44,6 +45,8 @@ def transform_features(X: pd.DataFrame):
     X_num = scaler.transform(X[numerical_cols])
 
     X_final = _combine_features(X, X_cat, X_num, encoder, categorical_cols, numerical_cols)
+
+    X_final = X_final.reindex(columns=expected_columns, fill_value=0)
 
     return X_final
 
