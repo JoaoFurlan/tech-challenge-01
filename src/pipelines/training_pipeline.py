@@ -5,6 +5,8 @@ import mlflow
 import torch
 from sklearn.model_selection import train_test_split
 
+
+
 from src.config import RAW_DATA_PATH, MODEL_PATH, MLFLOW_TRACKING_URI, RANDOM_STATE
 from src.data.load_data import load_data
 from src.data.preprocess import clean_data
@@ -13,8 +15,10 @@ from src.models.train import train_model
 from src.models.evaluate import evaluate
 from src.middleware.logger import get_logger
 from src.config import C_BOLD, C_CYAN, C_GREEN, C_RESET
+from src.utils.train_utils import log_confusion_matrix
 
 logger = get_logger(__name__)
+
 
 
 def run_training_pipeline():
@@ -79,20 +83,26 @@ def run_training_pipeline():
             model_path=MODEL_PATH
         )
 
+
         # 7. Avaliação (agora utilizando o conjunto de teste isolado)
+        model.load_state_dict(torch.load(MODEL_PATH)) # Carrega os pesos salvos pelo EarlyStopping antes de avaliar
         model.eval()
         with torch.no_grad():
             X_test_t = torch.tensor(X_test.values, dtype=torch.float32)
             # Obter probabilidades (usando sigmoid pois a saída do modelo é linear)
             y_prob = torch.sigmoid(model(X_test_t)).numpy().flatten()
+
+
+        # Define o Threshold
+        CHURN_THRESHOLD = 0.3
         
-        metrics = evaluate(y_test, y_prob)
-        
-        # logger.info(f"Métricas Finais - Recall: {metrics['recall']:.4f} | F1: {metrics['f1']:.4f}")
+        metrics = evaluate(y_test, y_prob, threshold=CHURN_THRESHOLD)
+    
 
         # 8. Log no MLflow
+        log_confusion_matrix(y_test, y_prob, threshold=CHURN_THRESHOLD)
         mlflow.log_metrics(metrics)
-        mlflow.log_param("model_type", "MLP")
+        mlflow.log_param("model_type", "MLP", CHURN_THRESHOLD)
         mlflow.pytorch.log_model(model, "model")
 
         # Log formatado
