@@ -8,20 +8,24 @@ class ChurnMLP(nn.Module):
     def __init__(self, input_dim: int):
         super(ChurnMLP, self).__init__()
 
-        # Camadas densas (Linear) seguidas de ativação ReLU e Dropout para evitar overfitting
-        self.layer1 = nn.Linear(input_dim, 64)
-        self.layer2 = nn.Linear(64, 32)
-        self.layer3 = nn.Linear(32, 16)
-        self.output = nn.Linear(16, 1)
+        self.model = nn.Sequential(
+            # Camadas 1: Entrada -> 64 neurônios
+            nn.Linear(input_dim, 64),
+            nn.ReLU(),
+            nn.Dropout(0.2),
 
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.2)
+            # Camada 2: 64 -> 32 neurônios
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+
+            # Camada 3: 32 -> 16 neurônios
+            nn.Linear(32, 16),
+            nn.ReLU(),
+
+            # Saída: 16 -> 1 neurônio (saída linear para Logits)
+            nn.Linear(16, 1)
+        )
 
     def forward(self, x):
-        x = self.relu(self.layer1(x))
-        x = self.dropout(x)
-        x = self.relu(self.layer2(x))
-        x = self.dropout(x)
-        x = self.relu(self.layer3(x))
-        x = self.output(x)
-        return x
+        return self.model(x)

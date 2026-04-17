@@ -86,7 +86,7 @@ def run_training_pipeline():
             # Obter probabilidades (usando sigmoid pois a saída do modelo é linear)
             y_prob = torch.sigmoid(model(X_test_t)).numpy().flatten()
         
-        metrics = evaluate(y_val, y_prob)
+        metrics = evaluate(y_test, y_prob)
         
         # logger.info(f"Métricas Finais - Recall: {metrics['recall']:.4f} | F1: {metrics['f1']:.4f}")
 
