@@ -35,3 +35,28 @@ def predict(df: pd.DataFrame):
         probs = torch.sigmoid(model(X_tensor)).numpy()
 
     return probs
+
+
+
+def predict_new_customer(customer_dict: dict) -> float:
+    """
+    Função wrapper para ser usada pela API FastAPI.
+    Recebe um dicionário com os dados de um cliente, converte para DataFrame,
+    faz a predição e retorna a probabilidade como um float puro.
+    """
+    # 1. Converte o dicionário que veio da API em um DataFrame de 1 linha
+    df_new = pd.DataFrame([customer_dict])
+    
+    # 2. Como TotalCharges pode vir como string da API (igual ao dataset bruto), 
+    # garantimos que vire número antes de passar pelo transform_features
+    if 'TotalCharges' in df_new.columns:
+        df_new['TotalCharges'] = pd.to_numeric(df_new['TotalCharges'], errors='coerce').fillna(0)
+
+    # 3. Chama a sua função predict que já está pronta e funciona super bem!
+    probs_array = predict(df_new)
+    
+    # 4. probs_array é um array 2D do numpy, por exemplo: [[0.745]]
+    # Precisamos extrair esse valor e converter para o tipo float do Python
+    probability = float(probs_array[0][0])
+    
+    return probability
