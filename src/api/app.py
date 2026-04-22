@@ -1,8 +1,10 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from src.api.schemas import CustomerInput, PredictionOutput
 from src.models.predict import predict_new_customer
 from src.middleware.logger import get_logger
+from src.middleware.latency import log_latency_middleware
 from src.config import CHURN_THRESHOLD
+
 
 logger = get_logger(__name__)
 
@@ -12,11 +14,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
+
+# Registrar o middleware
+@app.middleware("http")
+async def add_latency_middleware(request: Request, call_next):
+    return await log_latency_middleware(request, call_next)
+
+
+
 @app.get("/health", tags=["Health"])
 def health_check():
     """Endpoint para verificar se a API está online."""
     logger.info("Health check acessado.")
     return {"status": "ok", "message": "API is running"}
+
+
 
 @app.post("/predict", response_model=PredictionOutput, tags=["Prediction"])
 def predict_churn(customer: CustomerInput):
