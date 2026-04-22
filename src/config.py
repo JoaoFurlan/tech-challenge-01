@@ -17,6 +17,7 @@ TARGET = "Churn"
 
 # Hiperparâmetros Globais
 RANDOM_STATE = 42
+CHURN_THRESHOLD = 0.3
 
 # Cores para o terminal
 C_GREEN = "\033[32m"

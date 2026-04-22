@@ -52,7 +52,7 @@ def predict_new_customer(customer_dict: dict) -> float:
     if 'TotalCharges' in df_new.columns:
         df_new['TotalCharges'] = pd.to_numeric(df_new['TotalCharges'], errors='coerce').fillna(0)
 
-    # 3. Chama a sua função predict que já está pronta e funciona super bem!
+    # 3. Chama a função predict
     probs_array = predict(df_new)
     
     # 4. probs_array é um array 2D do numpy, por exemplo: [[0.745]]

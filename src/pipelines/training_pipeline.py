@@ -14,7 +14,7 @@ from src.features.build_features import fit_transform_features, transform_featur
 from src.models.train import train_model
 from src.models.evaluate import evaluate
 from src.middleware.logger import get_logger
-from src.config import C_BOLD, C_CYAN, C_GREEN, C_RESET
+from src.config import C_BOLD, C_CYAN, C_GREEN, C_RESET, CHURN_THRESHOLD
 from src.utils.train_utils import log_confusion_matrix
 
 logger = get_logger(__name__)
@@ -94,7 +94,7 @@ def run_training_pipeline():
 
 
         # Define o Threshold
-        CHURN_THRESHOLD = 0.3
+        CHURN_THRESHOLD = CHURN_THRESHOLD
         
         metrics = evaluate(y_test, y_prob, threshold=CHURN_THRESHOLD)
     

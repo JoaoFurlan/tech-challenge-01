@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from src.api.schemas import CustomerInput, PredictionOutput
-from src.models.predict import predict_new_customer # Sua função adaptada
+from src.models.predict import predict_new_customer
 from src.middleware.logger import get_logger
+from src.config import CHURN_THRESHOLD
 
 logger = get_logger(__name__)
 
@@ -29,9 +30,8 @@ def predict_churn(customer: CustomerInput):
         # Chamar a sua função de inferência já existente
         probabilidade = predict_new_customer(customer_dict)
         
-        # Definir a classe (0 ou 1) baseado no seu threshold (ex: 0.3 ou 0.5)
-        # O PDF pede pra priorizar recall, então vou usar 0.3 baseado no seu evaluate.py
-        limite_decisao = 0.3
+        # Definir a classe (0 ou 1) baseado no threshold
+        limite_decisao = CHURN_THRESHOLD
         predicao = 1 if probabilidade >= limite_decisao else 0
         mensagem = "Provável Churn" if predicao == 1 else "Fiel"
         
