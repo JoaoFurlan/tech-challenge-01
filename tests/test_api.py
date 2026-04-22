@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+
 from src.api.app import app
 
 client = TestClient(app)
@@ -31,12 +32,12 @@ def test_predict_endpoint():
         "MonthlyCharges": 70.0,
         "TotalCharges": "1700"
     }
-    
+
     response = client.post("/predict", json=payload)
-    
+
     assert response.status_code == 200
     dados = response.json()
     assert "churn_probability" in dados
     assert "churn_prediction" in dados
     assert "message" in dados
-    assert type(dados["churn_probability"]) == float
+    assert isinstance(dados["churn_probability"], float)

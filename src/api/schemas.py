@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+
 class CustomerInput(BaseModel):
     gender: str = Field(..., json_schema_extra={"example": "Male"})
     SeniorCitizen: int = Field(..., json_schema_extra={"example": 0})

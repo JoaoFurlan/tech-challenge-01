@@ -1,12 +1,12 @@
+import mlflow
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
-import mlflow
 
+from src.middleware.logger import get_logger
 from src.models.mlp import ChurnMLP
 from src.utils.train_utils import EarlyStopping
-from src.middleware.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -57,7 +57,7 @@ def train_model(X_train, y_train, X_val, y_val, model_path):
                 running_val_loss += loss_val.item()
 
         epoch_val_loss = running_val_loss / len(val_loader)
-        
+
         # --- LOGS E EARLY STOPPING ---
         early_stopping(epoch_val_loss, model)
         mlflow.log_metric("val_loss", epoch_val_loss, step=epoch)

@@ -1,7 +1,7 @@
 import argparse
 
-from src.pipelines.training_pipeline import run_training_pipeline
 from src.middleware.logger import get_logger
+from src.pipelines.training_pipeline import run_training_pipeline
 
 logger = get_logger(__name__)
 
@@ -9,7 +9,6 @@ logger = get_logger(__name__)
 def main():
     """
     Entry point do projeto.
-    
     Permite executar o pipeline de treino via linha de comando.
     """
     parser = argparse.ArgumentParser(description="Pipeline de Treinamento - Churn Prediction")
@@ -34,4 +33,3 @@ if __name__ == "__main__":
     main()
 
 
-    

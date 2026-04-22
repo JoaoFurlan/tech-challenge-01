@@ -1,20 +1,27 @@
-import pandas as pd
-import numpy as np
 import random
+
 import mlflow
+import numpy as np
 import torch
 from sklearn.model_selection import train_test_split
 
-
-
-from src.config import RAW_DATA_PATH, MODEL_PATH, MLFLOW_TRACKING_URI, RANDOM_STATE
+from src.config import (
+    C_BOLD,
+    C_CYAN,
+    C_GREEN,
+    C_RESET,
+    CHURN_THRESHOLD,
+    MLFLOW_TRACKING_URI,
+    MODEL_PATH,
+    RANDOM_STATE,
+    RAW_DATA_PATH,
+)
 from src.data.load_data import load_data
 from src.data.preprocess import clean_data
 from src.features.build_features import fit_transform_features, transform_features
-from src.models.train import train_model
-from src.models.evaluate import evaluate
 from src.middleware.logger import get_logger
-from src.config import C_BOLD, C_CYAN, C_GREEN, C_RESET, CHURN_THRESHOLD
+from src.models.evaluate import evaluate
+from src.models.train import train_model
 from src.utils.train_utils import log_confusion_matrix
 
 logger = get_logger(__name__)
@@ -52,20 +59,21 @@ def run_training_pipeline():
         y = df["Churn"]
 
         # 4. Split treino, validação e teste
-        # Primeiro split: separa o conjunto de teste (20%) e o conjunto completo para treino/validação (80%)
+        # Primeiro split: separa o conjunto de teste (20%)
+        # e o conjunto completo para treino/validação (80%)
         X_train_full, X_test, y_train_full, y_test = train_test_split(
                                             X,
-                                            y, 
-                                            test_size=0.2, 
-                                            random_state=RANDOM_STATE, 
+                                            y,
+                                            test_size=0.2,
+                                            random_state=RANDOM_STATE,
                                             stratify=y)
-        
+
         # Segundo split: subdivide o conjunto completo em treino e validação
         X_train, X_val, y_train, y_val = train_test_split(
                                             X_train_full,
-                                            y_train_full, 
-                                            test_size=0.2, 
-                                            random_state=RANDOM_STATE, 
+                                            y_train_full,
+                                            test_size=0.2,
+                                            random_state=RANDOM_STATE,
                                             stratify=y_train_full)
 
 
@@ -85,7 +93,8 @@ def run_training_pipeline():
 
 
         # 7. Avaliação (agora utilizando o conjunto de teste isolado)
-        model.load_state_dict(torch.load(MODEL_PATH)) # Carrega os pesos salvos pelo EarlyStopping antes de avaliar
+        # Carrega os pesos salvos pelo EarlyStopping antes de avaliar
+        model.load_state_dict(torch.load(MODEL_PATH))
         model.eval()
         with torch.no_grad():
             X_test_t = torch.tensor(X_test.values, dtype=torch.float32)
@@ -93,11 +102,9 @@ def run_training_pipeline():
             y_prob = torch.sigmoid(model(X_test_t)).numpy().flatten()
 
 
-        # Define o Threshold
-        CHURN_THRESHOLD = CHURN_THRESHOLD
-        
+
         metrics = evaluate(y_test, y_prob, threshold=CHURN_THRESHOLD)
-    
+
 
         # 8. Log no MLflow
         log_confusion_matrix(y_test, y_prob, threshold=CHURN_THRESHOLD)
@@ -115,4 +122,3 @@ def run_training_pipeline():
         logger.info(f"ROC-AUC:   {C_GREEN}{metrics['roc_auc']:.4f}{C_RESET}")
         logger.info(f"{C_CYAN}-----------------------------{C_RESET}")
 
-    

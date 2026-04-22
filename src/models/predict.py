@@ -1,9 +1,11 @@
-import torch
-import pandas as pd
 import joblib
-from src.models.mlp import ChurnMLP
-from src.features.build_features import transform_features
+import pandas as pd
+import torch
+
 from src.config import MODEL_DIR, MODEL_PATH
+from src.features.build_features import transform_features
+from src.models.mlp import ChurnMLP
+
 
 def load_model(input_dim):
     model = ChurnMLP(input_dim)
@@ -24,9 +26,9 @@ def predict(df: pd.DataFrame):
     except FileNotFoundError:
         print("Aviso: feature_names.joblib não encontrado. Usando ordem atual.")
 
-    # 3. Converte para Tensor 
+    # 3. Converte para Tensor
     X_tensor = torch.tensor(X.values, dtype=torch.float32)
-    
+
     # 4. Carrega modelo e faz a predição
     model = load_model(X_tensor.shape[1])
 
@@ -46,17 +48,17 @@ def predict_new_customer(customer_dict: dict) -> float:
     """
     # 1. Converte o dicionário que veio da API em um DataFrame de 1 linha
     df_new = pd.DataFrame([customer_dict])
-    
-    # 2. Como TotalCharges pode vir como string da API (igual ao dataset bruto), 
+
+    # 2. Como TotalCharges pode vir como string da API (igual ao dataset bruto),
     # garantimos que vire número antes de passar pelo transform_features
     if 'TotalCharges' in df_new.columns:
         df_new['TotalCharges'] = pd.to_numeric(df_new['TotalCharges'], errors='coerce').fillna(0)
 
     # 3. Chama a função predict
     probs_array = predict(df_new)
-    
+
     # 4. probs_array é um array 2D do numpy, por exemplo: [[0.745]]
     # Precisamos extrair esse valor e converter para o tipo float do Python
     probability = float(probs_array[0][0])
-    
+
     return probability

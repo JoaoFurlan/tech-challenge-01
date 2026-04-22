@@ -1,6 +1,6 @@
 import logging
-import sys
 import os
+import sys
 
 # Definição de cores ANSI
 RESET = "\033[0m"
@@ -23,7 +23,9 @@ def get_logger(name: str):
         # 1. FORMATADORES
         # Formato com cores para o terminal (melhor para leitura)
         shell_formatter = logging.Formatter(
-            f"{CYAN}%(asctime)s{RESET} - [%(name)s] - {BOLD}%(levelname)-8s{RESET} - %(message)s", datefmt="%H:%M:%S"
+            f"{CYAN}%(asctime)s{RESET} - [%(name)s] - "
+            f"{BOLD}%(levelname)-8s{RESET} - %(message)s",
+            datefmt="%H:%M:%S"
         )
 
         # Formato limpo para o arquivo (sem códigos de cor ANSI)
@@ -45,7 +47,7 @@ def get_logger(name: str):
 
         file_handler = logging.FileHandler(
                                     os.path.join(log_dir, "api.log"),
-                                    mode="a", 
+                                    mode="a",
                                     encoding="utf-8"
                                     )
         file_handler.setFormatter(file_formatter)
