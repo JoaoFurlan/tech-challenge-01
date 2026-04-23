@@ -6,10 +6,13 @@ from src.config import MODEL_DIR, MODEL_PATH
 from src.features.build_features import transform_features
 from src.models.mlp import ChurnMLP
 
+# Força o uso da CPU independentemente de ter GPU ou não
+device = torch.device("cpu")
 
 def load_model(input_dim):
     model = ChurnMLP(input_dim)
-    model.load_state_dict(torch.load(MODEL_PATH))
+    model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+    model.to(device)
     model.eval()
     return model
 
@@ -27,7 +30,7 @@ def predict(df: pd.DataFrame):
         print("Aviso: feature_names.joblib não encontrado. Usando ordem atual.")
 
     # 3. Converte para Tensor
-    X_tensor = torch.tensor(X.values, dtype=torch.float32)
+    X_tensor = torch.tensor(X.values, dtype=torch.float32).to(device)
 
     # 4. Carrega modelo e faz a predição
     model = load_model(X_tensor.shape[1])

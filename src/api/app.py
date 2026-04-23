@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.api.schemas import CustomerInput, PredictionOutput
 from src.config import CHURN_THRESHOLD
@@ -14,6 +15,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
+Instrumentator().instrument(app).expose(app)
 
 # Registrar o middleware
 @app.middleware("http")

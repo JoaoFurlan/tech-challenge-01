@@ -10,21 +10,23 @@ from src.utils.train_utils import EarlyStopping
 
 logger = get_logger(__name__)
 
+# Definir dispositivo globalmente como CPU
+device = torch.device("cpu")
+
 def train_model(X_train, y_train, X_val, y_val, model_path):
 
-    X_train_t = torch.tensor(X_train.values, dtype=torch.float32)
-    y_train_t = torch.tensor(y_train.values, dtype=torch.float32).view(-1, 1)
+    X_train_t = torch.tensor(X_train.values, dtype=torch.float32).to(device)
+    y_train_t = torch.tensor(y_train.values, dtype=torch.float32).view(-1, 1).to(device)
 
-    X_val_t = torch.tensor(X_val.values, dtype=torch.float32)
-    y_val_t = torch.tensor(y_val.values, dtype=torch.float32).view(-1, 1)
+    X_val_t = torch.tensor(X_val.values, dtype=torch.float32).to(device)
+    y_val_t = torch.tensor(y_val.values, dtype=torch.float32).view(-1, 1).to(device)
 
     train_loader = DataLoader(TensorDataset(X_train_t, y_train_t), batch_size=32, shuffle=True)
     val_loader = DataLoader(TensorDataset(X_val_t, y_val_t), batch_size=32, shuffle=False)
 
-    # 1. Definir o peso baseado no desbalanceamento
-    pos_weight = torch.tensor([1.0])
-
-    model = ChurnMLP(input_dim=X_train.shape[1])
+    # 1. Definir o peso baseado no desbalanceamento, e modelo na CPU
+    pos_weight = torch.tensor([1.0]).to(device)
+    model = ChurnMLP(input_dim=X_train.shape[1]).to(device)
 
     # 2. Passar o peso para a função de perda
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
@@ -38,6 +40,7 @@ def train_model(X_train, y_train, X_val, y_val, model_path):
         model.train()
         running_train_loss = 0.0
         for batch_X, batch_y in train_loader:
+            batch_X, batch_y = batch_X.to(device), batch_y.to(device)
             optimizer.zero_grad()
             loss = criterion(model(batch_X), batch_y)
             loss.backward()
@@ -52,6 +55,7 @@ def train_model(X_train, y_train, X_val, y_val, model_path):
         running_val_loss = 0.0
         with torch.no_grad():
             for batch_X_val, batch_y_val in val_loader:
+                batch_X_val, batch_y_val = batch_X_val.to(device), batch_y_val.to(device)
                 outputs_val = model(batch_X_val)
                 loss_val = criterion(outputs_val, batch_y_val)
                 running_val_loss += loss_val.item()
@@ -66,6 +70,6 @@ def train_model(X_train, y_train, X_val, y_val, model_path):
             logger.info(f"Early stopping acionado na época {epoch}")
             break
 
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path, map_location=device))
 
     return model

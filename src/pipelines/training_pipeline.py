@@ -94,7 +94,9 @@ def run_training_pipeline():
 
         # 7. Avaliação (agora utilizando o conjunto de teste isolado)
         # Carrega os pesos salvos pelo EarlyStopping antes de avaliar
-        model.load_state_dict(torch.load(MODEL_PATH))
+        device = torch.device("cpu")
+        model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+        model.to(device)
         model.eval()
         with torch.no_grad():
             X_test_t = torch.tensor(X_test.values, dtype=torch.float32)
