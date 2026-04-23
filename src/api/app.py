@@ -1,19 +1,40 @@
 from fastapi import FastAPI, HTTPException, Request
 from prometheus_fastapi_instrumentator import Instrumentator
+from contextlib import asynccontextmanager
+import joblib
 
 from src.api.schemas import CustomerInput, PredictionOutput
-from src.config import CHURN_THRESHOLD
+from src.config import CHURN_THRESHOLD, MODEL_DIR
 from src.middleware.latency import log_latency_middleware
 from src.middleware.logger import get_logger
-from src.models.predict import predict_new_customer
+from src.models.predict import predict_new_customer, load_model_in_memory
 
 logger = get_logger(__name__)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # O que acontece ANTES da API começar a rodar (Startup)
+    logger.info("Iniciando API: Carregando modelo em memória (Singleton)...")
+    try:
+        expected_columns = joblib.load(MODEL_DIR / "feature_names.joblib")
+        input_dim = len(expected_columns)
+        load_model_in_memory(input_dim)
+        logger.info(f"Modelo carregado com sucesso. Dimensão: {input_dim}")
+    except Exception as e:
+        logger.error(f"Erro crítico ao carregar modelo: {e}")
+    
+    yield  # Aqui a API "roda"
+    
+    # O que acontece quando a API é DESLIGADA (Shutdown)
+    logger.info("Encerrando API...")
 
 app = FastAPI(
     title="Churn Prediction API",
     description="API para prever o cancelamento de clientes (Churn) de Telecom",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
+
 
 Instrumentator().instrument(app).expose(app)
 

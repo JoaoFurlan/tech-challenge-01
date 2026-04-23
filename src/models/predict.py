@@ -9,12 +9,20 @@ from src.models.mlp import ChurnMLP
 # Força o uso da CPU independentemente de ter GPU ou não
 device = torch.device("cpu")
 
-def load_model(input_dim):
-    model = ChurnMLP(input_dim)
-    model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
-    model.to(device)
-    model.eval()
-    return model
+# Variável global para o Singleton
+_MODEL = None
+
+def load_model_in_memory(input_dim):
+    global _MODEL
+
+    if _MODEL is None:
+        model = ChurnMLP(input_dim)
+        model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+        model.to(device)
+        model.eval()
+        _MODEL = model
+    
+    return _MODEL
 
 
 def predict(df: pd.DataFrame):
@@ -33,7 +41,7 @@ def predict(df: pd.DataFrame):
     X_tensor = torch.tensor(X.values, dtype=torch.float32).to(device)
 
     # 4. Carrega modelo e faz a predição
-    model = load_model(X_tensor.shape[1])
+    model = load_model_in_memory(X_tensor.shape[1])
 
     with torch.no_grad():
         # Aplica sigmoid para obter probabilidade entre 0 e 1
