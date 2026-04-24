@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 # Caminho base do projeto (onde está o README)
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -11,7 +12,14 @@ PROCESSED_DATA_PATH = DATA_DIR/"processed"/"telco_clean.csv"
 # Pastas de Modelos e Artefatos
 MODEL_DIR = BASE_DIR/"models"
 MODEL_PATH = MODEL_DIR / "mlp_churn_best.pt"
-MLFLOW_TRACKING_URI = f"sqlite:///{BASE_DIR.as_posix()}/mlflow.db"
+
+# MLflow com variável de ambiente
+# 1. Tenta ler do sistema (Docker/Server)
+# 2. Se não existir, monta o caminho padrão dinâmico
+DEFAULT_MLFLOW_URI = f"sqlite:///{BASE_DIR.as_posix()}/mlflow.db"
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", DEFAULT_MLFLOW_URI)
+
+
 TARGET = "Churn"
 
 # Hiperparâmetros Globais
