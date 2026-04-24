@@ -17,7 +17,14 @@ dependencies = [
   "pandera>=0.20",
   "python-json-logger>=2.0",
   "torch>=2.11.0",
-  "seaborn>=0.13.2"
+  "seaborn>=0.13.2",
+  "fastapi>=0.115.0",
+  "uvicorn>=0.30.0",
+  "pydantic>=2.9.0",
+  "httpx>=0.27.0",
+  "prometheus-client>=0.25.0", 
+  "prometheus-fastapi-instrumentator>=7.1.0",
+  "starlette>=0.52.1"
 ]
 
 [project.optional-dependencies]
@@ -31,13 +38,27 @@ dev = [
 addopts = "-q"
 
 [tool.ruff]
+# Define o limite de linha como 100 conforme seu projeto
 line-length = 100
+# Versão alvo do Python
 target-version = "py311"
-src = ["."]
 
 [tool.ruff.lint]
+# E: pycodestyle errors, F: Pyflakes, I: isort (organização de imports), W: Warnings
 select = ["E", "F", "I", "W"]
+# Ignora avisos de variáveis não usadas em arquivos de inicialização de pacotes
 ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+# Em arquivos __init__.py, é comum importar e não usar (F401)
+"__init__.py" = ["F401"]
+# Notebooks costumam ter linhas longas de outputs/tabelas que não queremos validar rigidamente
+"*.ipynb" = ["E501"]
+
+[tool.ruff.lint.isort]
+# Garante que os imports fiquem organizados e limpos
+combine-as-imports = true
+force-single-line = false
 
 [tool.setuptools.packages.find]
 where = ["src"]

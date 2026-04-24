@@ -1,13 +1,17 @@
-import torch
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import mlflow
 import os
+
+import matplotlib.pyplot as plt
+import mlflow
+import seaborn as sns
+import torch
 from sklearn.metrics import confusion_matrix
 
+
 class EarlyStopping:
-    """Interrompe o treinamento se a perda de validação não melhorar após um intervalo (patience)."""
+    """
+    Interrompe o treinamento se a perda de validação
+    não melhorar após um intervalo (patience).
+    """
     def __init__(self, patience=5, min_delta=0, path='model_checkpoint.pt'):
         self.patience = patience
         self.min_delta = min_delta
@@ -38,7 +42,7 @@ class EarlyStopping:
 
 def log_confusion_matrix(y_true, probs, threshold=0.3):
     """
-    Gera uma matriz de confusão estilizada com legendas detalhadas 
+    Gera uma matriz de confusão estilizada com legendas detalhadas
     e faz o upload para o MLflow.
     """
     # Converter probabilidades em predições binárias
@@ -56,14 +60,14 @@ def log_confusion_matrix(y_true, probs, threshold=0.3):
 
     # Configurar a figura
     fig, ax = plt.subplots(figsize=(12, 10))
-    
+
     sns.heatmap(
-        cm, 
-        annot=annot, 
-        fmt="", 
-        cmap="Blues", 
-        xticklabels=["No Churn", "Churn"], 
-        yticklabels=["No Churn", "Churn"], 
+        cm,
+        annot=annot,
+        fmt="",
+        cmap="Blues",
+        xticklabels=["No Churn", "Churn"],
+        yticklabels=["No Churn", "Churn"],
         ax=ax
     )
 
@@ -73,14 +77,14 @@ def log_confusion_matrix(y_true, probs, threshold=0.3):
 
     # Adicionar a legenda explicativa no rodapé da imagem
     plt.figtext(
-        0.5, -0.1, 
+        0.5, -0.1,
         "Legenda Detalhada:\n"
         "• TN (True Negatives): O modelo previu corretamente que o cliente FICARIA.\n"
         "• FN (False Negatives): O modelo errou ao dizer que o cliente ficaria, mas ele SAIU.\n"
         "• TP (True Positives): O modelo previu corretamente que o cliente SAIRIA (Churn).\n"
         "• FP (False Positives): O modelo previu que o cliente sairia, mas ele FICOU.",
-        ha="center", 
-        fontsize=10, 
+        ha="center",
+        fontsize=10,
         bbox={"facecolor":"white", "alpha":0.8, "edgecolor":"gray", "pad":10}
     )
 
@@ -95,5 +99,5 @@ def log_confusion_matrix(y_true, probs, threshold=0.3):
     plt.savefig(plot_path, bbox_inches='tight')
 
     mlflow.log_artifact(plot_path)
-    
+
     plt.close(fig)

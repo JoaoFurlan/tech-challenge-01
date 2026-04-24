@@ -1,6 +1,6 @@
 import pandas as pd
-from src.middleware.logger import get_logger
 
+from src.middleware.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -11,6 +11,9 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     - Trata valores nulos
     - Remove CustomerID
     """
+
+    logger.info("Iniciando a limpeza dos dados")
+
     df = df.copy()
 
     # 1. Converter TotalCharges (que vem como string/object) para float

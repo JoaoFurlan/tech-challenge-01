@@ -1,6 +1,7 @@
-import pandas as pd
 import joblib
+import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
 from src.config import MODEL_DIR
 from src.middleware.logger import get_logger
 
@@ -8,7 +9,7 @@ logger = get_logger(__name__)
 
 def fit_transform_features(X: pd.DataFrame):
     """Fit + transform (treino)."""
-    
+
     categorical_cols = X.select_dtypes(include=['object']).columns.tolist()
     numerical_cols = X.select_dtypes(exclude=['object']).columns.tolist()
 
@@ -53,7 +54,7 @@ def transform_features(X: pd.DataFrame):
 
 def _combine_features(X, X_cat, X_num, encoder, cat_cols, num_cols):
     """Função interna para juntar features."""
-    
+
     X_cat_df = pd.DataFrame(
         X_cat,
         columns=encoder.get_feature_names_out(cat_cols),

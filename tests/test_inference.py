@@ -1,14 +1,16 @@
+import joblib
 import pandas as pd
 import torch
-import joblib
+
 from src.config import MODEL_DIR
 from src.models.mlp import ChurnMLP
+
 
 def predict_new_customer(customer_dict):
     # 1. Carregar os Transformadores (Encoder e Scaler)
     encoder = joblib.load(MODEL_DIR / "one_hot_encoder.joblib")
     scaler = joblib.load(MODEL_DIR / "scaler.joblib") # Adicionamos o scaler!
-    
+
     # 2. Transformar o dicionário em DataFrame e Limpar
     df_new = pd.DataFrame([customer_dict])
     if 'customerID' in df_new.columns:
@@ -18,14 +20,14 @@ def predict_new_customer(customer_dict):
     # 3. Separar colunas para aplicar as transformações
     cat_cols = df_new.select_dtypes(include=['object']).columns.tolist()
     num_cols = df_new.select_dtypes(exclude=['object']).columns.tolist()
-    
+
     # Aplicar o Encoder e o Scaler que foram salvos no treino
     encoded_data = encoder.transform(df_new[cat_cols])
     scaled_data = scaler.transform(df_new[num_cols]) # Importante: Normalizar os números!
-    
+
     encoded_df = pd.DataFrame(encoded_data, columns=encoder.get_feature_names_out(cat_cols))
     scaled_df = pd.DataFrame(scaled_data, columns=num_cols)
-    
+
     X_final = pd.concat([scaled_df, encoded_df], axis=1)
 
     # 4. Converter para Tensor
@@ -34,17 +36,17 @@ def predict_new_customer(customer_dict):
     # 5. CARREGAR O MODELO TREINADO (A parte que faltava)
     input_dim = X_tensor.shape[1]
     model = ChurnMLP(input_dim)
-    
+
     # Carrega os pesos do arquivo gerado no train.py
     model_path = MODEL_DIR / "mlp_churn_best.pt"
     model.load_state_dict(torch.load(model_path))
-    
+
     model.eval() # Modo de avaliação
     with torch.no_grad():
         output = model(X_tensor)
         # Como no mlp.py tiramos a Sigmoid da arquitetura, aplicamos ela aqui
         probability = torch.sigmoid(output).item()
-    
+
     return probability
 
 # --- TESTE COM UM CLIENTE NOVO ---

@@ -193,3 +193,5 @@ models/*
 # MacOS
 .DS_Store
 ~$*
+
+reports/logs/*.log
