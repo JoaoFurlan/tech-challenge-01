@@ -1,5 +1,5 @@
-from pathlib import Path
 import os
+from pathlib import Path
 
 # Caminho base do projeto (onde está o README)
 BASE_DIR = Path(__file__).resolve().parent.parent

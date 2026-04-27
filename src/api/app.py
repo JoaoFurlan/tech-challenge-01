@@ -1,13 +1,14 @@
+from contextlib import asynccontextmanager
+
+import joblib
 from fastapi import FastAPI, HTTPException, Request
 from prometheus_fastapi_instrumentator import Instrumentator
-from contextlib import asynccontextmanager
-import joblib
 
 from src.api.schemas import CustomerInput, PredictionOutput
 from src.config import CHURN_THRESHOLD, MODEL_DIR
 from src.middleware.latency import log_latency_middleware
 from src.middleware.logger import get_logger
-from src.models.predict import predict_new_customer, load_model_in_memory
+from src.models.predict import load_model_in_memory, predict_new_customer
 
 logger = get_logger(__name__)
 
@@ -22,9 +23,9 @@ async def lifespan(app: FastAPI):
         logger.info(f"Modelo carregado com sucesso. Dimensão: {input_dim}")
     except Exception as e:
         logger.error(f"Erro crítico ao carregar modelo: {e}")
-    
+
     yield  # Aqui a API "roda"
-    
+
     # O que acontece quando a API é DESLIGADA (Shutdown)
     logger.info("Encerrando API...")
 

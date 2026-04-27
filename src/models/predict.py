@@ -21,7 +21,7 @@ def load_model_in_memory(input_dim):
         model.to(device)
         model.eval()
         _MODEL = model
-    
+
     return _MODEL
 
 

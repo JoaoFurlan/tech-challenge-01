@@ -1,77 +1,61 @@
 import joblib
 import pandas as pd
+import pytest
 import torch
 
 from src.config import MODEL_DIR
 from src.models.mlp import ChurnMLP
 
 
-def predict_new_customer(customer_dict):
-    # 1. Carregar os Transformadores (Encoder e Scaler)
-    encoder = joblib.load(MODEL_DIR / "one_hot_encoder.joblib")
-    scaler = joblib.load(MODEL_DIR / "scaler.joblib") # Adicionamos o scaler!
+@pytest.fixture
+def sample_customer():
+    return {
+        'gender': 'Male', 'SeniorCitizen': 0, 'Partner': 'Yes', 'Dependents': 'Yes',
+        'tenure': 15, 'PhoneService': 'Yes', 'MultipleLines': 'No phone service',
+        'InternetService': 'DSL', 'OnlineSecurity': 'No', 'OnlineBackup': 'Yes',
+        'DeviceProtection': 'No', 'TechSupport': 'Yes', 'StreamingTV': 'No',
+        'StreamingMovies': 'No', 'Contract': 'Month-to-month', 'PaperlessBilling': 'Yes',
+        'PaymentMethod': 'Electronic check', 'MonthlyCharges': 70.0, 'TotalCharges': '1700'
+    }
 
-    # 2. Transformar o dicionário em DataFrame e Limpar
-    df_new = pd.DataFrame([customer_dict])
-    if 'customerID' in df_new.columns:
-        df_new = df_new.drop(columns=['customerID'])
+def test_mlp_inference_smoke(sample_customer):
+    """
+    Smoke test: Garante que o pipeline de inferência (encoder + scaler + MLP)
+    funciona do início ao fim sem erros.
+    """
+    # 1. Carregar artefatos
+    encoder = joblib.load(MODEL_DIR / "one_hot_encoder.joblib")
+    scaler = joblib.load(MODEL_DIR / "scaler.joblib")
+
+    # 2. Processar input
+    df_new = pd.DataFrame([sample_customer])
     df_new['TotalCharges'] = pd.to_numeric(df_new['TotalCharges'], errors='coerce').fillna(0)
 
-    # 3. Separar colunas para aplicar as transformações
-    cat_cols = df_new.select_dtypes(include=['object']).columns.tolist()
-    num_cols = df_new.select_dtypes(exclude=['object']).columns.tolist()
+    cat_cols = ['gender', 'Partner', 'Dependents', 'PhoneService', 'MultipleLines',
+                'InternetService', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection',
+                'TechSupport', 'StreamingTV', 'StreamingMovies', 'Contract',
+                'PaperlessBilling', 'PaymentMethod']
+    num_cols = ['SeniorCitizen', 'tenure', 'MonthlyCharges', 'TotalCharges']
 
-    # Aplicar o Encoder e o Scaler que foram salvos no treino
     encoded_data = encoder.transform(df_new[cat_cols])
-    scaled_data = scaler.transform(df_new[num_cols]) # Importante: Normalizar os números!
+    scaled_data = scaler.transform(df_new[num_cols])
 
-    encoded_df = pd.DataFrame(encoded_data, columns=encoder.get_feature_names_out(cat_cols))
-    scaled_df = pd.DataFrame(scaled_data, columns=num_cols)
+    X_final = pd.concat([
+        pd.DataFrame(scaled_data, columns=num_cols),
+        pd.DataFrame(encoded_data, columns=encoder.get_feature_names_out(cat_cols))
+    ], axis=1)
 
-    X_final = pd.concat([scaled_df, encoded_df], axis=1)
-
-    # 4. Converter para Tensor
+    # 3. Carregar Modelo
     X_tensor = torch.tensor(X_final.values, dtype=torch.float32)
+    model = ChurnMLP(X_tensor.shape[1])
+    model.load_state_dict(torch.load(MODEL_DIR / "mlp_churn_best.pt"))
+    model.eval()
 
-    # 5. CARREGAR O MODELO TREINADO (A parte que faltava)
-    input_dim = X_tensor.shape[1]
-    model = ChurnMLP(input_dim)
-
-    # Carrega os pesos do arquivo gerado no train.py
-    model_path = MODEL_DIR / "mlp_churn_best.pt"
-    model.load_state_dict(torch.load(model_path))
-
-    model.eval() # Modo de avaliação
+    # 4. Predição
     with torch.no_grad():
         output = model(X_tensor)
-        # Como no mlp.py tiramos a Sigmoid da arquitetura, aplicamos ela aqui
         probability = torch.sigmoid(output).item()
 
-    return probability
-
-# --- TESTE COM UM CLIENTE NOVO ---
-new_client = {
-    'gender': 'Male',
-    'SeniorCitizen': 0,
-    'Partner': 'Yes',
-    'Dependents': 'Yes',
-    'tenure': 15,
-    'PhoneService': 'Yes',
-    'MultipleLines': 'No phone service',
-    'InternetService': 'DSL',
-    'OnlineSecurity': 'No',
-    'OnlineBackup': 'Yes',
-    'DeviceProtection': 'No',
-    'TechSupport': 'Yes',
-    'StreamingTV': 'No',
-    'StreamingMovies': 'No',
-    'Contract': 'Month-to-month',
-    'PaperlessBilling': 'Yes',
-    'PaymentMethod': 'Electronic check',
-    'MonthlyCharges': 700,
-    'TotalCharges': '1700'
-}
-
-prob = predict_new_customer(new_client)
-print(f"Probabilidade de Churn: {prob:.2%}")
-print("Resultado: Provável Churn" if prob > 0.5 else "Resultado: Fiel")
+    # Asserts
+    assert 0.0 <= probability <= 1.0, "A probabilidade deve estar entre 0 e 1"
+    assert isinstance(probability, float)
