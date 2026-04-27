@@ -1,124 +1,71 @@
-# Tech Challenge 01 — Previsão de Churn
+Tech Challenge 01 — Previsão de Churn
+=====================================
 
-Projeto desenvolvido para o **Tech Challenge 01 da Pós Tech em Machine Learning Engineering (FIAP)**.
+Este projeto consiste em uma solução end-to-end para previsão de churn em uma operadora de telecomunicações. O objetivo é identificar clientes com alto risco de cancelamento utilizando uma rede neural MLP (Multi-Layer Perceptron) desenvolvida em PyTorch, integrada com rastreamento de experimentos, conteinerização e monitoramento.
 
-O objetivo é construir um **modelo preditivo de churn** capaz de identificar clientes com risco de cancelamento em uma operadora de telecomunicações.
+Estrutura do Projeto
+--------------------
 
-O modelo principal **foi uma rede neural MLP implementada em PyTorch**, comparada com modelos baseline utilizando **Scikit-Learn**.
+Plaintext
 
----
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   tc-01-previsao-churn  ├── data/               # Datasets brutos e processados  ├── docs/               # Documentação adicional e Model Card  ├── models/             # Artefatos e modelos treinados (.pt, .joblib)  ├── notebooks/          # Análise exploratória (EDA) e experimentos  ├── src/                # Código-fonte modularizado  │   ├── api/            # Endpoints FastAPI  │   ├── data/           # Scripts de carga e limpeza  │   ├── features/       # Engenharia de atributos  │   ├── middleware/     # Utilitários de logging (Middleware)  │   ├── models/         # Arquitetura e avaliação da rede neural  │   ├── pipelines/      # Orquestração do treino  │   └── utils/          # Helpers e ferramentas de treino  ├── tests/              # Testes unitários e de integração  ├── Dockerfile          # Configuração da imagem Docker  ├── docker-compose.yml  # Orquestração da API e monitoramento  ├── Makefile            # Atalhos para comandos comuns  └── pyproject.toml      # Configuração de dependências e ferramentas   `
 
-## Instalação e ambiente (via `pyproject.toml`)
+Instalação e Setup
+------------------
 
-Este projeto agora utiliza o `pyproject.toml` como fonte principal de configuração de dependências.
+1.  Bashgit clone cd tc-01-previsao-churn
+    
+2.  Bashmake install_Ou manualmente:_Bashpip install -e ".\[dev\]"
+    
 
-### Requisitos
+Execução do Projeto
+-------------------
 
-- Python 3.11+
+### Treinamento do Modelo
 
-### Instalação (dependências principais)
+O pipeline realiza a carga, pré-processamento, treino com Early Stopping e registro no MLflow.
 
-```bash
-python -m pip install -e .
-```
+Bash
 
-### Instalação com dependências de desenvolvimento
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   make train   `
 
-```bash
-python -m pip install -e ".[dev]"
-```
+### API de Inferência (FastAPI)
 
----
+Para rodar o serviço localmente:
 
+Bash
 
-## Estrutura do projeto
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   uvicorn src.api.app:app --reload   `
 
-```text
-tc-01-previsao-churn
-│
-├── data/
-│   ├── raw/        (dataset original)
-│   └── processed/  (dataset tratado para modelagem)
-│
-├── notebooks/      (análise exploratória e experimentos)
-├── src/            (código fonte reutilizável)
-├── models/         (artefatos de modelos treinados)
-├── tests/          (testes automatizados)
-└── docs/           (documentação do projeto)
+Acesse o Swagger em: http://localhost:8000/docs.
 
-```
----
+### Testes e Qualidade
 
-## Dataset
+Para rodar os testes automatizados e o linter:
 
-**Telco Customer Churn (IBM)**
+Bash
 
-Dataset público contendo informações de clientes de telecomunicações e variáveis relacionadas a:
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   make test  make lint   `
 
-- contratos
-- serviços contratados
-- faturamento
-- cancelamento de clientes (churn)
+Uso com Docker
+--------------
 
-Disponível em:  
-https://www.kaggle.com/datasets/blastchar/telco-customer-churn
+O projeto está configurado para subir a API e a infraestrutura de monitoramento (Prometheus e Grafana).
 
-Acesso em: **07/03/2026**
+1.  Bashdocker-compose up --build
+    
+2.  **Acessos:**
+    
+    *   **API:** http://localhost:8000
+        
+    *   **Prometheus:** http://localhost:9090
+        
+    *   **Grafana:** http://localhost:3000
+        
 
----
+Monitoramento e Experimentos
+----------------------------
 
-## Modelagem
-
-Foram utilizados diferentes modelos para previsão de churn:
-
-- Logistic Regression (baseline linear)
-- Random Forest (baseline baseado em árvores)
-- MLP (Multi-Layer Perceptron) implementado em PyTorch
-
-A rede neural foi treinada utilizando:
-
-- batching com **PyTorch DataLoader**
-- função de perda **BCEWithLogitsLoss**
-- otimizador **Adam**
-- **early stopping** para reduzir risco de overfitting
-
----
-
-## Rastreamento de experimentos
-
-Todos os experimentos foram registrados utilizando **MLflow**, permitindo acompanhar:
-
-- parâmetros de treinamento
-- métricas de avaliação
-- artefatos gerados durante o experimento
-
-Entre os artefatos registrados estão:
-
-- modelos treinados
-- tabela comparativa de resultados
-
----
-
-## Métricas de avaliação
-
-Os modelos foram avaliados utilizando múltiplas métricas:
-
-- Accuracy
-- Precision
-- Recall
-- F1-score
-- ROC-AUC
-
-Também foi analisado o impacto da alteração do **threshold de decisão** na rede neural para avaliar o trade-off entre precisão e recall.
-
----
-
-## Tecnologias utilizadas
-
-- Python
-- Pandas
-- Scikit-Learn
-- PyTorch
-- MLflow
-- Matplotlib
-- Seaborn
+*   **MLflow:** Para visualizar métricas e artefatos do treino, execute mlflow ui.
+    
+*   **Métricas:** A API expõe métricas de negócio e performance no endpoint /metrics, consumidas pelo Prometheus para visualização no Grafana.
