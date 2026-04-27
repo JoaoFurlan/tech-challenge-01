@@ -2,31 +2,46 @@ from fastapi import FastAPI, HTTPException, Request
 from prometheus_fastapi_instrumentator import Instrumentator
 from contextlib import asynccontextmanager
 import joblib
+import random
 
 from src.api.schemas import CustomerInput, PredictionOutput
-from src.config import CHURN_THRESHOLD, MODEL_DIR
+from src.config import CHURN_THRESHOLD, MODEL_DIR, RAW_DATA_PATH
 from src.middleware.latency import log_latency_middleware
 from src.middleware.logger import get_logger
 from src.models.predict import predict_new_customer, load_model_in_memory
+from src.data.load_data import load_data
+
+_TEST_DATA = None
 
 logger = get_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global _TEST_DATA
     # O que acontece ANTES da API começar a rodar (Startup)
     logger.info("Iniciando API: Carregando modelo em memória (Singleton)...")
+
     try:
         expected_columns = joblib.load(MODEL_DIR / "feature_names.joblib")
         input_dim = len(expected_columns)
         load_model_in_memory(input_dim)
+
         logger.info(f"Modelo carregado com sucesso. Dimensão: {input_dim}")
+
+        _TEST_DATA = load_data(str(RAW_DATA_PATH))
+
+        if _TEST_DATA is not None:
+            logger.info(f"Dataset carregado para shuffle: {_TEST_DATA.shape[0]} linhas.")
+        else:
+            logger.error("Dataset carregado retornou None.")
+
     except Exception as e:
-        logger.error(f"Erro crítico ao carregar modelo: {e}")
+        logger.error(f"Erro CRÍTICO ao carregar modelo: {e}")
     
     yield  # Aqui a API "roda"
-    
     # O que acontece quando a API é DESLIGADA (Shutdown)
     logger.info("Encerrando API...")
+
 
 app = FastAPI(
     title="Churn Prediction API",
@@ -81,3 +96,26 @@ def predict_churn(customer: CustomerInput):
     except Exception as e:
         logger.error(f"Erro ao realizar predição: {str(e)}")
         raise HTTPException(status_code=500, detail="Erro interno durante a predição.")
+
+
+
+@app.get("/random_customer", response_model=CustomerInput, tags=["Utils"])
+def get_random_customer():
+    """Retorna um cliente aleatório da base original para testar o /predict."""
+    global _TEST_DATA
+
+    if _TEST_DATA is None:
+        logger.error("Tentativa de shuffle mas _TEST_DATA está None.")
+        raise HTTPException(status_code=500, detail="Base de dados não carregada.")
+    
+    try: 
+        # Sorteia uma linha
+        sample = _TEST_DATA.sample(n=1).to_dict(orient="records")[0]
+
+        if sample.get("TotalCharges") == " ":
+            sample["TotalCharges"] = 0
+
+        return sample
+    except Exception as e:
+        logger.error(f"Erro ao sortear cliente: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno ao processar sorteio.")

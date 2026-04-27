@@ -14,6 +14,7 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 # Precisamos do pyproject.toml, README.md e da pasta src (onde está o código)
 COPY pyproject.toml README.md ./
 COPY src/ ./src/
+COPY data/ ./data/
 
 # 4. Agora sim, instala o seu projeto e as outras dependências (pandas, mlflow, etc)
 RUN pip install --no-cache-dir .
