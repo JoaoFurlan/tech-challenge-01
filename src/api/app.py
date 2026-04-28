@@ -1,8 +1,9 @@
-from fastapi import FastAPI, HTTPException, Request
-from prometheus_fastapi_instrumentator import Instrumentator
 from contextlib import asynccontextmanager
+
 import joblib
 import random
+from fastapi import FastAPI, HTTPException, Request
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.api.schemas import CustomerInput, PredictionOutput
 from src.config import CHURN_THRESHOLD, MODEL_DIR, RAW_DATA_PATH

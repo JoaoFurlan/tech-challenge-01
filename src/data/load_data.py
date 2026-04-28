@@ -28,7 +28,9 @@ CHURN_SCHEMA = pa.DataFrameSchema({
     "PaymentMethod": pa.Column(str),
     "MonthlyCharges": pa.Column(float),
     "TotalCharges": pa.Column(object), # Mantido como object porque o CSV bruto tem espaços vazios
-    "Churn": pa.Column(str, checks=pa.Check.isin(["Yes", "No"]), required=False) # 'required=False' caso use para predição real
+    "Churn": pa.Column(str,
+                       checks=pa.Check.isin(["Yes", "No"]),
+                       required=False) # 'required=False' caso use para predição real
 })
 
 
@@ -39,7 +41,11 @@ def load_data(path: str) -> pd.DataFrame:
     """
     logger.info(f"Carregando e validando dados de: {path}")
     try:
-        df = pd.read_csv(path)
+        # Forçamos os tipos que costumam dar problema na inferência automática do Pandas
+        df = pd.read_csv(path, dtype={
+            "customerID": str,
+            "TotalCharges": str  # Mantemos como string/object para o Pandera aceitar
+            })
 
         validated_df = CHURN_SCHEMA.validate(df)
 
@@ -51,5 +57,5 @@ def load_data(path: str) -> pd.DataFrame:
         raise
     except Exception as e:
         logger.error(f"Erro ao carregar o arquivo: {e}")
-    raise    
-    
+    raise
+
