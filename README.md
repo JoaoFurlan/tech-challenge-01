@@ -165,5 +165,6 @@ ___
 - **Testes Automatizados**: Cobertura de limpeza de dados, contrato de dados (*Pydantic/Pandera*), carregamento de pesos e endpoints de API.
 
 ___
->**Desenvolvido por:** Bruno Piatto, João Furlan, Paulo Krempel
-Grupo 20 - FIAP 9MLET | *Pos Tech Machine Learning Engineering (FIAP).*
+>**Desenvolvido por:** Bruno Piatto, João Furlan e Paulo Krempel. 
+>
+>Grupo 20 - FIAP 9MLET | *Pos Tech Machine Learning Engineering (FIAP).*
