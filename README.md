@@ -166,4 +166,4 @@ ___
 
 ___
 >**Desenvolvido por:** Bruno Piatto, João Furlan, Paulo Krempel
-> Grupo 20 - FIAP 9MLET | *Pos Tech Machine Learning Engineering (FIAP).*
+Grupo 20 - FIAP 9MLET | *Pos Tech Machine Learning Engineering (FIAP).*
