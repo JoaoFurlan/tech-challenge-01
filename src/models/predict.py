@@ -6,7 +6,7 @@ from src.config import MODEL_DIR, MODEL_PATH
 from src.features.build_features import transform_features
 from src.models.mlp import ChurnMLP
 
-# Força o uso da CPU independentemente de ter GPU ou não
+# Definir dispositivo globalmente como CPU
 device = torch.device("cpu")
 
 # Variável global para o Singleton

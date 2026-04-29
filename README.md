@@ -3,7 +3,7 @@ Tech Challenge 01 — Previsão de Churn End-to-End
 
 Este projeto apresenta uma solução de Machine Learning para prever o cancelamento de clientes (churn). A arquitetura foi desenhada seguindo os princípios de **Engenharia de Software e MLOps**, utilizando ***PyTorch*** para a rede neural e ***FastAPI*** para o serviço de predição.
 
-🎯 Contexto de Negócio (Método STAR)
+ Contexto de Negócio (Método STAR)
 ------------------------------------
 - **Situation**: Operadoras de telecomunicações enfrentam alta rotatividade de clientes. Identificar o churn antes que ele ocorra é vital para a saúde financeira.
 
@@ -21,7 +21,7 @@ Este projeto apresenta uma solução de Machine Learning para prever o cancelame
 
 ___
 
-🏗️ Estrutura do Projeto
+Estrutura do Projeto
 --------------------
 ```
 tech-challenge-01
@@ -48,14 +48,14 @@ tech-challenge-01
 
 ___
 
-⚙️ Diferenciação de Pipelines
+Diferenciação de Pipelines
 ------------------------------
 Para atender aos requisitos de robustez e reprodutibilidade, o projeto separa claramente as responsabilidades:
 - **Pipeline de Treinamento (Orquestração)**: Gerencia o ciclo de vida completo do modelo, desde o carregamento dos dados brutos (`load_data.py`), limpeza e validação de schema com *Pandera* (`preprocess.py`), até o treinamento da rede neural com Early Stopping e registro no *MLflow*.
 - **Pipeline de Inferência (Processamento)**: Utiliza artefatos serializados (`.joblib`) para garantir que a API aplique exatamente as mesmas transformações de Feature Engineering (como o *StandardScaler* e *OneHotEncoder*) utilizadas durante o treino. Isso elimina o risco de training-serving skew, garantindo que o modelo receba os dados no formato exato em que foi treinado.
 ___
 
-📊 Ciclo de Treinamento e Avaliação
+Ciclo de Treinamento e Avaliação
 --------------------------------
 O treinamento da rede neural segue um protocolo rigoroso de divisão de dados para garantir que as métricas reportadas reflitam a performance real do modelo em produção.
 ### 1. Metodologia de Divisão (Split Triplo)
@@ -89,7 +89,7 @@ Todo o ciclo de vida do modelo — incluindo hiperparâmetros, curvas de perda (
 ___
 
 
-🚀 Instalação e Setup
+Instalação e Setup
 ------------------
 **1. Preparação do Ambiente**
 ```
@@ -118,7 +118,7 @@ python -m pip install -e ".[dev]"
 > **Nota**: Os comandos `make` simplificam a execução, mas exigem que o utilitário `make` esteja instalado (padrão em Linux/Mac, opcional no Windows via Chocolatey/Winget).
 ___
 
-🐳 *Docker* e Monitoramento
+*Docker* e Monitoramento
 --------------------------
 A solução está totalmente conteinerizada, incluindo a stack de observabilidade:
 1. **Execução**: Subir todos os serviços com `docker-compose up --build`.
@@ -132,7 +132,7 @@ A solução está totalmente conteinerizada, incluindo a stack de observabilidad
 ___
 
 
-🌐 Deploy em Nuvem (Render)
+Deploy em Nuvem (Render)
 ---------------------------
 A API também foi implantada em ambiente de produção utilizando o [***Render***](https://render.com/), que utiliza a mesma imagem *Docker* e os mesmos artefatos de modelo gerados no pipeline de treinamento, garantindo que a predição online seja idêntica à obtida localmente. Você pode testar a inferência diretamente pelo navegador sem necessidade de setup local.
 - **Link da Documentação (Swagger)**: [https://churn-prediction-o703.onrender.com/docs](https://churn-prediction-o703.onrender.com/docs)
@@ -144,7 +144,7 @@ A API também foi implantada em ambiente de produção utilizando o [***Render**
 
 ___
         
-🔍 Testando a API (Cliente Aleatório)
+Testando a API (Cliente Aleatório)
 -------------------------------------
 Para facilitar a validação da API sem a necessidade de construir um JSON manualmente, incluímos um utilitário:
 
@@ -155,8 +155,7 @@ Para facilitar a validação da API sem a necessidade de construir um JSON manua
 5. Vá até o endpoint `POST /predict`, clique em **"Try it out"**, cole o JSON no corpo da requisição e clique em **"Execute"**.
 6. O sistema retornará a probabilidade de churn e a classificação final baseada no **threshold estratégico de 0.3**.
 ___
-
-🧠 Detalhes Técnicos
+Detalhes Técnicos
 ---------------------
 - **Modelo**: MLP (Multi-Layer Perceptron) em *PyTorch* com Dropout (0.2).
 - **Feature Engineering**: Transformação robusta com *OneHotEncoder* e *StandardScaler*, garantindo paridade entre treino e inferência via artefatos serializados.
