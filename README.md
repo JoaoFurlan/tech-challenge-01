@@ -21,6 +21,19 @@ Este projeto apresenta uma solução de Machine Learning para prever o cancelame
 
 ___
 
+Arquitetura de Deploy
+-----------------------
+A solução foi desenhada seguindo o padrão de **Real-time Serving** (Predição em Tempo Real).
+
+- **Justificativa**: Escolhemos esta abordagem para permitir que a equipe de retenção receba o score de churn instantaneamente durante uma interação com o cliente. O uso de FastAPI e o carregamento do modelo em memória (Singleton) garantem alta performance e baixa latência.
+- **Fluxo de Dados**: 
+  1. O cliente/sistema envia um JSON via POST para o endpoint `/predict`.
+  2. O **Middleware de Latência** inicia o rastreio da requisição.
+  3. Os dados brutos passam pelo pipeline de inferência (`StandardScaler` e `OneHotEncoder` persistidos).
+  4. O modelo MLP realiza a inferência em tempo real.
+  5. A API retorna a probabilidade e a classificação baseada no threshold estratégico de 0.3.
+___
+
 Estrutura do Projeto
 --------------------
 ```
@@ -163,6 +176,14 @@ Detalhes Técnicos
 - **Threshold de Decisão**: Ajustado para **0.3** para priorizar o **Recall** e a captura de clientes em risco.
 - **Testes Automatizados**: Cobertura de limpeza de dados, contrato de dados (*Pydantic/Pandera*), carregamento de pesos e endpoints de API.
 
+___
+
+Documentação Adicional
+------------------------
+Para uma visão ainda mais profunda sobre a governação e operação deste projeto, consulte os documentos detalhados na pasta `/docs`:
+
+- **[Model Card](docs/MODEL_CARD.md)**: Detalhes sobre a arquitetura da rede neural, limitações do modelo, considerações éticas e performance detalhada.
+- **[Plano de Monitoramento e Playbook](docs/MONITORING.md)**: Guia completo sobre as métricas coletadas (Prometheus/Grafana) e o plano de ação (Playbook) para resposta a incidentes em produção.
 ___
 >**Desenvolvido por:** Bruno Piatto, João Furlan e Paulo Krempel. 
 >
