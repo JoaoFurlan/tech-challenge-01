@@ -5,12 +5,12 @@ Este documento detalha a estratégia de observabilidade para a API de Predição
 
 Estratégia de Monitorização
 ------------------------------------
-A nossa solução utiliza o padrão de Monitorização de Sinais Dourados (Golden Signals), focando-se em Latência, Erros e Tráfego.
+A nossa solução utiliza o padrão de **Monitorização de Sinais Dourados** (Golden Signals), focando-se em Latência, Erros e Tráfego.
 
 **1. Métricas de Infraestrutura (Prometheus)**
-Coletadas automaticamente através do prometheus-fastapi-instrumentator integrado na app.py.
+Coletadas automaticamente através do `prometheus-fastapi-instrumentator` integrado na `app.py`.
 
-- **Latência de Requisição (p95 e p99):** Tempo que 95% e 99% das chamadas levam para responder. Vital para garantir a experiência do utilizador na arquitetura Real-time.
+- **Latência de Requisição (p95 e p99):** Tempo que 95% e 99% das chamadas levam para responder. Vital para garantir a experiência do utilizador na arquitetura *Real-time*.
 
 - **Taxa de Erros (HTTP 5xx):** Monitorização de falhas críticas no código ou no carregamento do modelo.
 
@@ -19,11 +19,12 @@ Coletadas automaticamente através do prometheus-fastapi-instrumentator integrad
 - **Throughput (RPS):** Volume de requisições por segundo para prever a necessidade de escalonamento.
 
 **2. Métricas de Modelo (ML Specific)**
-- **Distribuição de Predição:** Monitorização da percentagem de clientes classificados como "Churn". Um desvio súbito aqui pode indicar Data Drift (mudança no perfil do cliente real).
 
-- **Tempo de Inferência:** Medição específica do tempo gasto dentro da função predict_new_customer (excluindo o overhead da rede).
+- **Análise de Tendência de Predição (via Logs):** Monitoramento do comportamento do modelo através dos logs de execução (pasta `/logs`), onde cada predição e sua probabilidade são registradas. Um aumento atípico na probabilidade média pode indicar *Data Drift*.
 
-- **Saúde do Singleton:** Verificação se os artefatos (.pt e .joblib) foram carregados corretamente no arranque da aplicação (lifespan event).
+- **Tempo de Inferência:** Medição específica do tempo gasto dentro da função `predict_new_customer` (excluindo o overhead da rede).
+
+- **Saúde do Singleton:** Verificação se os artefatos (`.pt` e `.joblib`) foram carregados corretamente no arranque da aplicação (*lifespan event*).
 
 ___
 
@@ -48,11 +49,11 @@ Procedimentos passo-a-passo para a equipa técnica em caso de falha.
 **Cenário A: API Inacessível ou Retornando Erro 500**
 
 
-1. **Diagnóstico**: Verificar logs do container via docker logs churn-api.
+1. **Diagnóstico**: Verificar logs do container via `docker logs churn-api`.
 
-2. **Verificação**: Validar se o ficheiro model_weights.pt e os scalers estão presentes na pasta /models.
+2. **Verificação**: Validar se o ficheiro `model_weights.pt` e os scalers estão presentes na pasta `/models`.
 
-3. **Ação**: Reiniciar o serviço via docker-compose restart api. Se o erro persistir, verificar se houve alteração na versão do Python ou dependências no pyproject.toml.
+3. **Ação**: Reiniciar o serviço via `docker-compose restart api`. Se o erro persistir, verificar se houve alteração na versão do Python ou dependências no `pyproject.toml`.
 
 
 **Cenário B: Degradação de Performance (Alta Latência)**
@@ -61,11 +62,11 @@ Procedimentos passo-a-passo para a equipa técnica em caso de falha.
 2. **Ação**: Verificar se a instância (Render/Docker) está com CPU ou RAM no limite. Escalar a infraestrutura ou otimizar a função de pré-processamento.
 
 **Cenário C: Suspeita de Perda de Precisão (Model Drift)**
-1. **Diagnóstico**: Comparar a distribuição das predições atuais com a baseline de treino (aprox. 26% de churn no dataset original).
+1. **Diagnóstico**: Cruzar os logs de predição da API com os dados reais de cancelamento coletados pelo time de negócio. Verificar se a média das probabilidades retornadas pela API divergiu significativamente da baseline de treino.
 
 2. **Ação**:
    - Coletar amostra de dados reais que falharam na predição.
-   - Executar o pipeline de retreino utilizando o comando make train.
+   - Executar o pipeline de retreino utilizando o comando `make train`.
    - Comparar o novo AUC-ROC e, se superior, realizar o deploy da nova versão do modelo.
 
 
@@ -76,6 +77,6 @@ Visualização
 -----------------------
 O acesso aos dashboards de monitorização é feito via:
 
-- Grafana: http://localhost:3000 (Login: admin / admin)
-- Prometheus: http://localhost:9090
+- **Grafana**: http://localhost:3000 (Login: `admin` / `admin`)
+- **Prometheus**: http://localhost:9090
 > Nota: O dashboard do Grafana está pré-configurado para consumir a fonte de dados do Prometheus e exibir o painel de latência e volume de predições.

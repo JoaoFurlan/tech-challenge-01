@@ -138,7 +138,7 @@ A solução está totalmente conteinerizada, incluindo a stack de observabilidad
 2. **Endpoints de Monitoramento**:
    - **API (Swagger)**: http://localhost:8000/docs — Documentação interativa e testes de predição.
    - **Prometheus**: http://localhost:9090 — Coleta de métricas de performance e saúde da API.
-   - **Grafana**: http://localhost:3000 — Dashboards visuais para acompanhamento de requisições e latência *(Login: admin / admin)*.
+   - **Grafana**: http://localhost:3000 — Dashboards visuais para acompanhamento de requisições e latência (Login: `admin` / `admin`).
 
 > **Nota**: A stack de monitoramento permite observar em tempo real o comportamento do modelo MLP em produção, facilitando a identificação de anomalias ou degradação de performance.
 
