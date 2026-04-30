@@ -106,6 +106,9 @@ Instalação e Setup
 ------------------
 **1. Preparação do Ambiente**
 ```
+# Clonar repositório
+git clone https://github.com/JoaoFurlan/tech-challenge-01
+
 # Criar ambiente virtual
 python -m venv .venv
 
@@ -125,7 +128,7 @@ python -m pip install -e ".[dev]"
 | **Instalar Tudo** | `make install` | `python -m pip install -e ".[dev]"` |
 | **Treinar Modelo** | `make train` | `python main.py --train` |
 | **Rodar Testes** | `make test` | `pytest tests/` |
-| **Rodar Linter** | `make lint` | `ruff check .` |
+| **Rodar Linter** | `make lint` | `ruff check . --fix` |
 | **API Local** | `make run` | `uvicorn src.api.app:app --reload` |
 
 > **Nota**: Os comandos `make` simplificam a execução, mas exigem que o utilitário `make` esteja instalado (padrão em Linux/Mac, opcional no Windows via Chocolatey/Winget).
