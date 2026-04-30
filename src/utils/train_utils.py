@@ -1,5 +1,6 @@
 import os
 
+import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import mlflow
 import seaborn as sns
@@ -42,25 +43,21 @@ class EarlyStopping:
 
 def log_confusion_matrix(y_true, probs, threshold=0.3):
     """
-    Gera uma matriz de confusão estilizada com legendas detalhadas
-    e faz o upload para o MLflow.
+    Gera uma matriz de confusão com a legenda em uma coluna separada à direita,
+    garantindo que não haja sobreposição.
     """
-    # Converter probabilidades em predições binárias
     y_pred = (probs >= threshold).astype(int)
     cm = confusion_matrix(y_true, y_pred)
 
-    # Criar as anotações customizadas (TN, FP, FN, TP)
     labels = [["TN", "FP"], ["FN", "TP"]]
-    annot = []
-    for i in range(2):
-        row = []
-        for j in range(2):
-            row.append(f"{labels[i][j]}\n{cm[i][j]}")
-        annot.append(row)
+    annot = [[f"{labels[i][j]}\n{cm[i][j]}" for j in range(2)] for i in range(2)]
 
-    # Configurar a figura
-    fig, ax = plt.subplots(figsize=(12, 10))
+    # 1. Criar a figura e definir o Grid
+    fig = plt.figure(figsize=(11, 5))
+    gs = gridspec.GridSpec(1, 2, width_ratios=[1.2, 1], wspace=0.4)
 
+    # 2. Eixo da Esquerda (Matriz)
+    ax0 = plt.subplot(gs[0])
     sns.heatmap(
         cm,
         annot=annot,
@@ -68,32 +65,50 @@ def log_confusion_matrix(y_true, probs, threshold=0.3):
         cmap="Blues",
         xticklabels=["No Churn", "Churn"],
         yticklabels=["No Churn", "Churn"],
-        ax=ax
+        ax=ax0,
+        cbar=False
+    )
+    ax0.set_title(f"Matriz de Confusão (Threshold = {threshold})", fontsize=12, pad=15)
+    ax0.set_xlabel("Previsto (Predicted)", fontsize=10)
+    ax0.set_ylabel("Real (Actual)", fontsize=10)
+
+    # 3. Eixo da Direita (Legenda - Invisível)
+    ax1 = plt.subplot(gs[1])
+    ax1.axis('off') # Esconde os eixos da área da legenda
+
+    legend_text = (
+        """Legenda Detalhada:
+        
+            TN (True Negatives):
+            O modelo previu corretamente
+            que o cliente FICARIA.
+
+            FN (False Negatives):
+            O modelo errou ao dizer que o
+            cliente ficaria, mas ele SAIU.
+
+            TP (True Positives):
+            O modelo previu corretamente
+            que o cliente SAIRIA (Churn).
+
+            FP (False Positives):
+            O modelo previu que o cliente
+            sairia, mas ele FICOU."""
     )
 
-    ax.set_title(f"Matriz de Confusão (Threshold = {threshold})", fontsize=14, pad=20)
-    ax.set_xlabel("Previsto (Predicted)", fontsize=12)
-    ax.set_ylabel("Real (Actual)", fontsize=12)
-
-    # Adicionar a legenda explicativa no rodapé da imagem
-    plt.figtext(
-        0.5, -0.1,
-        "Legenda Detalhada:\n"
-        "• TN (True Negatives): O modelo previu corretamente que o cliente FICARIA.\n"
-        "• FN (False Negatives): O modelo errou ao dizer que o cliente ficaria, mas ele SAIU.\n"
-        "• TP (True Positives): O modelo previu corretamente que o cliente SAIRIA (Churn).\n"
-        "• FP (False Positives): O modelo previu que o cliente sairia, mas ele FICOU.",
-        ha="center",
-        fontsize=10,
-        bbox={"facecolor":"white", "alpha":0.8, "edgecolor":"gray", "pad":10}
-    )
+    # Adicionamos o texto dentro do eixo ax1 (invisível)
+    # x=0 e y=0.5 significa que o texto começa no início do eixo da direita
+    ax1.text(0.0, 0.5, legend_text,
+             va="center", ha="left",
+             fontsize=9, linespacing=1.4,
+             bbox={"facecolor":"white", "alpha":0.8, "edgecolor":"lightgray", "pad":10})
 
     output_dir = "reports/figures"
     os.makedirs(output_dir, exist_ok=True)
 
     plot_path = os.path.join(output_dir, "confusion_matrix_final.png")
 
-    plt.tight_layout()
+    #plt.tight_layout()
 
     # Salvar e enviar ao MLflow
     plt.savefig(plot_path, bbox_inches='tight')
