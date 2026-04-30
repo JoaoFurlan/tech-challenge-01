@@ -77,23 +77,15 @@ def log_confusion_matrix(y_true, probs, threshold=0.3):
     ax1.axis('off') # Esconde os eixos da área da legenda
 
     legend_text = (
-        """Legenda Detalhada:
-        
-            TN (True Negatives):
-            O modelo previu corretamente
-            que o cliente FICARIA.
-
-            FN (False Negatives):
-            O modelo errou ao dizer que o
-            cliente ficaria, mas ele SAIU.
-
-            TP (True Positives):
-            O modelo previu corretamente
-            que o cliente SAIRIA (Churn).
-
-            FP (False Positives):
-            O modelo previu que o cliente
-            sairia, mas ele FICOU."""
+        r"$\mathbf{Legenda\:}$" + "\n\n"
+        r"$\bullet\ \mathbf{TN\ (True\ Negatives):}$" + "\n"
+        "  O modelo previu corretamente\n  que o cliente FICARIA.\n\n"
+        r"$\bullet\ \mathbf{FN\ (False\ Negatives):}$" + "\n"
+        "  O modelo errou ao dizer que o\n  cliente ficaria, mas ele SAIU.\n\n"
+        r"$\bullet\ \mathbf{TP\ (True\ Positives):}$" + "\n"
+        "  O modelo previu corretamente\n  que o cliente SAIRIA (Churn).\n\n"
+        r"$\bullet\ \mathbf{FP\ (False\ Positives):}$" + "\n"
+        "  O modelo previu que o cliente\n  sairia, mas ele FICOU."
     )
 
     # Adicionamos o texto dentro do eixo ax1 (invisível)
