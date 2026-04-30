@@ -18,15 +18,18 @@ logger = get_logger(__name__)
 tags_metadata = [
     {
         "name": "Health",
-        "description": "Endpoints de diagnóstico para verificar a saúde e disponibilidade operacional da API.",
+        "description": "Endpoints de diagnóstico para verificar a saúde"
+        " e disponibilidade operacional da API.",
     },
     {
         "name": "Prediction",
-        "description": "Endpoints principais de inferência. Utiliza a rede neural treinada para prever a probabilidade de churn.",
+        "description": "Endpoints principais de inferência. Utiliza a rede"
+        " neural treinada para prever a probabilidade de churn.",
     },
     {
         "name": "Utils",
-        "description": "Ferramentas auxiliares para extração de amostras reais do dataset e validação rápida do fluxo de dados.",
+        "description": "Ferramentas auxiliares para extração de amostras"
+        " reais do dataset e validação rápida do fluxo de dados.",
     },
 ]
 
