@@ -191,4 +191,4 @@ Para uma visão ainda mais profunda sobre a governação e operação deste proj
 ___
 >**Desenvolvido por:** Bruno Piatto, João Furlan. 
 >
->Grupo 20 - FIAP 9MLET | *Pos Tech Machine Learning Engineering (FIAP).*
+>Grupo 56 - FIAP 9MLET | *Pos Tech Machine Learning Engineering (FIAP).*
