@@ -187,7 +187,8 @@ Para uma visão ainda mais profunda sobre a governação e operação deste proj
 
 - **[Model Card](docs/MODEL_CARD.md)**: Detalhes sobre a arquitetura da rede neural, limitações do modelo, considerações éticas e performance detalhada.
 - **[Plano de Monitoramento e Playbook](docs/MONITORING.md)**: Guia completo sobre as métricas coletadas (Prometheus/Grafana) e o plano de ação (Playbook) para resposta a incidentes em produção.
+- **[Vídeo de Apresentação](docs/VIDEO.md)**: Link para o vídeo de apresentação do projeto.
 ___
->**Desenvolvido por:** Bruno Piatto, João Furlan e Paulo Krempel. 
+>**Desenvolvido por:** Bruno Piatto, João Furlan. 
 >
 >Grupo 20 - FIAP 9MLET | *Pos Tech Machine Learning Engineering (FIAP).*
